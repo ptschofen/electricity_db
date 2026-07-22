@@ -26,4 +26,4 @@ jobs:
           HOSTINGER_FTP_USER: ${{ secrets.HOSTINGER_FTP_USER }}
           HOSTINGER_FTP_PASSWORD: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
         run: |
-          python fetch_entsoe_prices.py --list-path "domains/petertschofen.eu"
+          python fetch_entsoe_prices.py --list-path "domains/petertschofen.eu/public_html"
