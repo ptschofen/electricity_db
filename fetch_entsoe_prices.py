@@ -23,6 +23,7 @@ day's auction has cleared, so you pick up tomorrow's prices too.
 """
 
 import argparse
+import ftplib
 import json
 import os
 import sys
@@ -97,11 +98,34 @@ def parse_prices(xml_text: str):
     return points
 
 
+def upload_via_ftp(local_path: str, remote_path: str, host: str, user: str, password: str, use_tls: bool = True):
+    """Upload the JSON file to Hostinger via FTP (or FTPS if use_tls)."""
+    ftp_cls = ftplib.FTP_TLS if use_tls else ftplib.FTP
+    ftp = ftp_cls(timeout=30)
+    ftp.connect(host, 21)
+    ftp.login(user, password)
+    if use_tls:
+        ftp.prot_p()  # secure the data connection too
+    remote_dir = os.path.dirname(remote_path).replace("\\", "/")
+    if remote_dir:
+        try:
+            ftp.cwd(remote_dir)
+        except ftplib.error_perm as e:
+            raise SystemExit(f"Couldn't cd into '{remote_dir}' on the FTP server: {e}")
+    filename = os.path.basename(remote_path)
+    with open(local_path, "rb") as f:
+        ftp.storbinary(f"STOR {filename}", f)
+    ftp.quit()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--out", default="prices.json", help="Output JSON path (default: prices.json)")
     parser.add_argument("--days", type=int, default=2, help="Number of days from today to fetch (default: 2 = today + tomorrow)")
     parser.add_argument("--token", default=None, help="ENTSO-E security token (else reads ENTSOE_API_TOKEN env var)")
+    parser.add_argument("--upload", action="store_true", help="Upload the result to Hostinger via FTP afterward")
+    parser.add_argument("--ftp-remote-path", default="prices.json", help="Remote path/filename on the FTP server (default: prices.json in the login's home dir)")
+    parser.add_argument("--no-tls", action="store_true", help="Use plain FTP instead of FTPS (only if your host doesn't support FTPS)")
     args = parser.parse_args()
 
     token = args.token or os.environ.get("ENTSOE_API_TOKEN")
@@ -130,6 +154,16 @@ def main():
 
     print(f"Wrote {len(points)} price points to {args.out}")
     print(f"Range: {points[0]['start_utc']} .. {points[-1]['start_utc']}")
+
+    if args.upload:
+        host = os.environ.get("HOSTINGER_FTP_HOST")
+        user = os.environ.get("HOSTINGER_FTP_USER")
+        password = os.environ.get("HOSTINGER_FTP_PASSWORD")
+        missing = [n for n, v in [("HOSTINGER_FTP_HOST", host), ("HOSTINGER_FTP_USER", user), ("HOSTINGER_FTP_PASSWORD", password)] if not v]
+        if missing:
+            sys.exit(f"--upload requires these env vars to be set: {', '.join(missing)}")
+        upload_via_ftp(args.out, args.ftp_remote_path, host, user, password, use_tls=not args.no_tls)
+        print(f"Uploaded {args.out} -> {args.ftp_remote_path} on {host}")
 
 
 if __name__ == "__main__":
