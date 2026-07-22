@@ -1,0 +1,29 @@
+name: Fetch ENTSO-E prices and deploy
+
+on:
+  schedule:
+    # 13:30 UTC = 15:30 Vienna time in summer (CEST, UTC+2), 14:30 in winter (CET, UTC+1).
+    # Runs after the day-ahead auction clears, so tomorrow's prices are included.
+    - cron: "30 13 * * *"
+  workflow_dispatch: {}  # lets you trigger it manually from the Actions tab, for testing
+
+jobs:
+  fetch-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch prices and upload to Hostinger
+        env:
+          ENTSOE_API_TOKEN: ${{ secrets.ENTSOE_API_TOKEN }}
+          HOSTINGER_FTP_HOST: ${{ secrets.HOSTINGER_FTP_HOST }}
+          HOSTINGER_FTP_USER: ${{ secrets.HOSTINGER_FTP_USER }}
+          HOSTINGER_FTP_PASSWORD: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
+        run: |
+          python fetch_entsoe_prices.py --upload --ftp-remote-path "public_html/strom/prices.json"
