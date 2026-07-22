@@ -124,6 +124,21 @@ def upload_via_ftp(local_path: str, remote_path: str, host: str, user: str, pass
     ftp.quit()
 
 
+def list_ftp_dir(remote_dir: str, host: str, user: str, password: str, use_tls: bool = True):
+    """Connect and print the contents of remote_dir — pure discovery helper, no file transfer."""
+    ftp_cls = ftplib.FTP_TLS if use_tls else ftplib.FTP
+    ftp = ftp_cls(timeout=30)
+    ftp.connect(host, 21)
+    ftp.login(user, password)
+    if use_tls:
+        ftp.prot_p()
+    if remote_dir:
+        ftp.cwd(remote_dir)
+    print(f"Listing '{remote_dir or ftp.pwd()}':")
+    ftp.retrlines("LIST")
+    ftp.quit()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--out", default="prices.json", help="Output JSON path (default: prices.json)")
@@ -132,7 +147,18 @@ def main():
     parser.add_argument("--upload", action="store_true", help="Upload the result to Hostinger via FTP afterward")
     parser.add_argument("--ftp-remote-path", default="prices.json", help="Remote path/filename on the FTP server (default: prices.json in the login's home dir)")
     parser.add_argument("--no-tls", action="store_true", help="Use plain FTP instead of FTPS (only if your host doesn't support FTPS)")
+    parser.add_argument("--list-path", default=None, help="Instead of fetching/uploading, just list this remote FTP directory and exit (for path discovery)")
     args = parser.parse_args()
+
+    if args.list_path is not None:
+        host = os.environ.get("HOSTINGER_FTP_HOST")
+        user = os.environ.get("HOSTINGER_FTP_USER")
+        password = os.environ.get("HOSTINGER_FTP_PASSWORD")
+        missing = [n for n, v in [("HOSTINGER_FTP_HOST", host), ("HOSTINGER_FTP_USER", user), ("HOSTINGER_FTP_PASSWORD", password)] if not v]
+        if missing:
+            sys.exit(f"--list-path requires these env vars to be set: {', '.join(missing)}")
+        list_ftp_dir(args.list_path, host, user, password, use_tls=not args.no_tls)
+        return
 
     token = args.token or os.environ.get("ENTSOE_API_TOKEN")
     if not token:
