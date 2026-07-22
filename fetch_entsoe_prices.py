@@ -111,7 +111,13 @@ def upload_via_ftp(local_path: str, remote_path: str, host: str, user: str, pass
         try:
             ftp.cwd(remote_dir)
         except ftplib.error_perm as e:
-            raise SystemExit(f"Couldn't cd into '{remote_dir}' on the FTP server: {e}")
+            print(f"Couldn't cd into '{remote_dir}'. FTP login starts at: {ftp.pwd()}")
+            print("Contents of that starting directory:")
+            try:
+                ftp.retrlines("LIST")
+            except Exception as list_err:
+                print(f"(couldn't list directory: {list_err})")
+            raise SystemExit(f"550 error: {e}")
     filename = os.path.basename(remote_path)
     with open(local_path, "rb") as f:
         ftp.storbinary(f"STOR {filename}", f)
