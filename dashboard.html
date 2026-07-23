@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Electricity price — Austria</title>
+<style>
+  :root {
+    --bg: #f7f6f2;
+    --card: #ffffff;
+    --border: #e4e1d8;
+    --text: #26251f;
+    --text-secondary: #6b6a60;
+    --cheap-bg: #0da968;
+    --cheap-text: #ffffff;
+    --normal-bg: #f59e0b;
+    --normal-text: #241704;
+    --expensive-bg: #dc2626;
+    --expensive-text: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1b17;
+      --card: #26251f;
+      --border: #3a382f;
+      --text: #ece9de;
+      --text-secondary: #a6a396;
+      --cheap-bg: #0fbf78;
+      --cheap-text: #04150d;
+      --normal-bg: #fbbf24;
+      --normal-text: #241704;
+      --expensive-bg: #f14343;
+      --expensive-text: #1c0505;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 24px 16px 48px;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 18px; font-weight: 600; margin: 0 0 4px; }
+  .subtitle { font-size: 13px; color: var(--text-secondary); margin: 0 0 20px; }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .metric-card {
+    background: var(--card);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .metric-label { font-size: 12px; color: var(--text-secondary); margin: 0 0 4px; }
+  .metric-value { font-size: 22px; font-weight: 600; margin: 0; }
+  .metric-unit { font-size: 13px; font-weight: 400; color: var(--text-secondary); }
+  .badge {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .badge.cheap { background: var(--cheap-bg); color: var(--cheap-text); }
+  .badge.normal { background: var(--normal-bg); color: var(--normal-text); }
+  .badge.expensive { background: var(--expensive-bg); color: var(--expensive-text); }
+  .chart-card {
+    background: var(--card);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 16px 12px;
+  }
+  .day-label { font-size: 13px; font-weight: 600; margin: 0 0 8px; }
+  .bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 130px;
+    margin-bottom: 6px;
+  }
+  .bar-col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; }
+  .bar { width: 100%; border-radius: 2px 2px 0 0; min-height: 2px; }
+  .bar.cheap { background: var(--cheap-bg); }
+  .bar.normal { background: var(--normal-bg); }
+  .bar.expensive { background: var(--expensive-bg); }
+  .bar.now { outline: 1.5px solid var(--text); outline-offset: -1.5px; }
+  .hour-axis { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); }
+  .legend { display: flex; gap: 16px; margin-top: 14px; font-size: 12px; color: var(--text-secondary); }
+  .legend-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; }
+  .status { font-size: 13px; color: var(--text-secondary); padding: 40px 0; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Electricity price</h1>
+  <p class="subtitle" id="subtitle">Austria day-ahead price (SDAC)</p>
+
+  <div id="app">
+    <p class="status">Loading prices…</p>
+  </div>
+</div>
+
+<script>
+const JSON_URL = "prices.json";
+const TIMEZONE = "Europe/Vienna";
+const CHEAP_WINDOW_HOURS = 3;
+
+// --- Tariff config (Vorarlberg Netz AG, Netzebene 7, effective 2026) ---
+// All rates net (excl. VAT) unless noted. Source: vorarlbergnetz.at price sheets.
+const TARIFF = {
+  supplierMarkupCtKwh: 1.2,        // your provider's markup on the wholesale price
+  networkUsageCtKwh: 4.96,         // Netznutzungsentgelt Arbeitspreis (normal hours)
+  networkUsageSnapCtKwh: 3.97,     // SNAP rate: Apr–Sep, daily 10:00–16:00
+  networkLossCtKwh: 0.393,         // Netzverlustentgelt
+  renewablesLevyCtKwh: 0.62,       // Erneuerbaren-Förderbeitrag (usage + loss components combined)
+  electricityTaxCtKwh: 0.1,        // Elektrizitätsabgabe (household rate, 2026)
+  vatRate: 0.20,
+  // Fixed charges, not scaled by consumption — shown separately
+  fixedChargesEurYear: 92.22,      // Grundpreis (54.00) + Förderpauschale (19.02) + Messentgelt (19.20), net
+};
+
+function isSnapWindow(dateUtc) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: TIMEZONE, month: "numeric", hour: "numeric", hour12: false
+  }).formatToParts(dateUtc).reduce((acc, p) => (acc[p.type] = p.value, acc), {});
+  const month = parseInt(parts.month, 10);
+  const hour = parseInt(parts.hour, 10);
+  return month >= 4 && month <= 9 && hour >= 10 && hour < 16;
+}
+
+// Returns your actual gross cost in EUR/kWh for a given wholesale price (EUR/MWh) and timestamp.
+function yourCostEurKwh(wholesaleEurMwh, dateUtc) {
+  const wholesaleCtKwh = wholesaleEurMwh / 10; // EUR/MWh -> ct/kWh
+  const networkUsage = isSnapWindow(dateUtc) ? TARIFF.networkUsageSnapCtKwh : TARIFF.networkUsageCtKwh;
+  const netCtKwh = wholesaleCtKwh
+    + TARIFF.supplierMarkupCtKwh
+    + networkUsage
+    + TARIFF.networkLossCtKwh
+    + TARIFF.renewablesLevyCtKwh
+    + TARIFF.electricityTaxCtKwh;
+  const grossCtKwh = netCtKwh * (1 + TARIFF.vatRate);
+  return grossCtKwh / 100; // ct -> EUR
+}
+
+// Computes tercile breakpoints (lower third / upper third) for a set of prices.
+// Tiers are relative to that set, so "cheap" and "expensive" stay meaningful
+// whether the whole week is calm or the whole week is a price spike.
+function tierBreakpoints(prices) {
+  const sorted = [...prices].sort((a, b) => a - b);
+  const at = (frac) => sorted[Math.min(sorted.length - 1, Math.floor(frac * sorted.length))];
+  return { low: at(1 / 3), high: at(2 / 3) };
+}
+function tierOf(price, breakpoints) {
+  if (price <= breakpoints.low) return "cheap";
+  if (price >= breakpoints.high) return "expensive";
+  return "normal";
+}
+function tierLabel(tier) {
+  return tier === "cheap" ? "Cheap" : tier === "expensive" ? "Expensive" : "Normal";
+}
+function fmtEurKwh(mwhPrice) {
+  return (mwhPrice / 1000).toFixed(3);
+}
+function hourLabel(dateUtc) {
+  return new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: TIMEZONE }).format(dateUtc);
+}
+function dayKey(dateUtc) {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: TIMEZONE }).format(dateUtc); // YYYY-MM-DD
+}
+function dayLabel(dateUtc, todayKey) {
+  const key = dayKey(dateUtc);
+  if (key === todayKey) return "Today";
+  const tomorrow = new Date(new Date(todayKey + "T00:00:00Z").getTime() + 86400000);
+  if (key === dayKey(tomorrow)) return "Tomorrow";
+  return new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "short", timeZone: TIMEZONE }).format(dateUtc);
+}
+
+function findCheapestWindow(points, windowHours) {
+  if (!points.length) return null;
+  const intervalMin = points[0].interval_minutes || 60;
+  const windowPoints = Math.max(1, Math.round((windowHours * 60) / intervalMin));
+  if (points.length < windowPoints) return null;
+  let best = null;
+  for (let i = 0; i <= points.length - windowPoints; i++) {
+    const slice = points.slice(i, i + windowPoints);
+    const avg = slice.reduce((s, p) => s + p.price_eur_mwh, 0) / windowPoints;
+    if (!best || avg < best.avg) best = { avg, start: slice[0], end: slice[slice.length - 1] };
+  }
+  return best;
+}
+
+function renderDayChart(points, label, nowIso) {
+  const prices = points.map(p => p.price_eur_mwh);
+  const maxPrice = Math.max(...prices);
+  const minPrice = Math.min(0, ...prices); // always include 0 as a floor reference point
+  const range = Math.max(maxPrice - minPrice, 1); // avoid divide-by-zero on a perfectly flat day
+  const breakpoints = tierBreakpoints(prices); // relative to this day's own price spread
+  const bars = points.map(p => {
+    const tier = tierOf(p.price_eur_mwh, breakpoints);
+    const heightPx = Math.max(2, Math.round(((p.price_eur_mwh - minPrice) / range) * 130));
+    const isNow = p.start_utc <= nowIso && nowIso < p._endIso;
+    return `<div class="bar-col"><div class="bar ${tier}${isNow ? " now" : ""}" style="height:${heightPx}px" title="${hourLabel(new Date(p.start_utc))} — ${fmtEurKwh(p.price_eur_mwh)} EUR/kWh"></div></div>`;
+  }).join("");
+
+  // Pick ~5 evenly spaced label positions regardless of resolution (hourly, 15-min, etc.)
+  const axisFractions = [0, 0.25, 0.5, 0.75, 1];
+  const axisIdx = [...new Set(axisFractions.map(f => Math.round(f * (points.length - 1))))];
+  const axis = axisIdx.map(i => `<span>${hourLabel(new Date(points[i].start_utc))}</span>`).join("");
+
+  return `
+    <div class="chart-card" style="margin-bottom:16px;">
+      <p class="day-label">${label}</p>
+      <div class="bars">${bars}</div>
+      <div class="hour-axis">${axis}</div>
+    </div>`;
+}
+
+async function main() {
+  const app = document.getElementById("app");
+  let data;
+  try {
+    const res = await fetch(JSON_URL, { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    data = await res.json();
+  } catch (err) {
+    app.innerHTML = `<p class="status">Couldn't load price data (${err.message}). Check that prices.json is present and up to date.</p>`;
+    return;
+  }
+
+  const points = data.prices.map(p => ({ ...p }));
+  points.forEach((p, i) => {
+    const start = new Date(p.start_utc);
+    const end = new Date(start.getTime() + p.interval_minutes * 60000);
+    p._endIso = end.toISOString();
+  });
+
+  const now = new Date();
+  const nowIso = now.toISOString();
+  const current = points.find(p => p.start_utc <= nowIso && nowIso < p._endIso);
+
+  const todayKey = dayKey(now);
+  const byDay = {};
+  points.forEach(p => {
+    const key = dayKey(new Date(p.start_utc));
+    (byDay[key] = byDay[key] || []).push(p);
+  });
+
+  const todayPoints = byDay[todayKey] || [];
+  const todayAvg = todayPoints.length
+    ? todayPoints.reduce((s, p) => s + p.price_eur_mwh, 0) / todayPoints.length
+    : null;
+
+  const cheapWindow = findCheapestWindow(todayPoints.length ? todayPoints : points, CHEAP_WINDOW_HOURS);
+
+  let metricsHtml = "";
+  if (current) {
+    const todayBreakpoints = tierBreakpoints((todayPoints.length ? todayPoints : points).map(p => p.price_eur_mwh));
+    const tier = tierOf(current.price_eur_mwh, todayBreakpoints);
+    const yourCostNow = yourCostEurKwh(current.price_eur_mwh, now);
+    metricsHtml += `
+      <div class="metric-card">
+        <p class="metric-label">Right now</p>
+        <p class="metric-value">${yourCostNow.toFixed(3)} <span class="metric-unit">EUR/kWh</span></p>
+        <p style="font-size:12px;color:var(--text-secondary);margin:2px 0 0;">Wholesale: ${fmtEurKwh(current.price_eur_mwh)} EUR/kWh</p>
+        <span class="badge ${tier}">${tierLabel(tier)}</span>
+      </div>`;
+  }
+  if (todayAvg !== null) {
+    const todayYourCostAvg = todayPoints.reduce((s, p) => s + yourCostEurKwh(p.price_eur_mwh, new Date(p.start_utc)), 0) / todayPoints.length;
+    metricsHtml += `
+      <div class="metric-card">
+        <p class="metric-label">Today's average</p>
+        <p class="metric-value">${todayYourCostAvg.toFixed(3)} <span class="metric-unit">EUR/kWh</span></p>
+        <p style="font-size:12px;color:var(--text-secondary);margin:2px 0 0;">Wholesale: ${fmtEurKwh(todayAvg)} EUR/kWh</p>
+      </div>`;
+  }
+  if (cheapWindow) {
+    metricsHtml += `
+      <div class="metric-card">
+        <p class="metric-label">Cheapest ${CHEAP_WINDOW_HOURS}h window today</p>
+        <p class="metric-value">${hourLabel(new Date(cheapWindow.start.start_utc))}–${hourLabel(new Date(cheapWindow.end._endIso))}</p>
+      </div>`;
+  }
+
+  const dayKeys = Object.keys(byDay).sort();
+  const chartsHtml = dayKeys.map(key => renderDayChart(byDay[key], dayLabel(new Date(key + "T12:00:00Z"), todayKey), nowIso)).join("");
+
+  const monthlyFixedGross = (TARIFF.fixedChargesEurYear * (1 + TARIFF.vatRate)) / 12;
+  const legendHtml = `
+    <div class="legend">
+      <span><span class="legend-swatch" style="background:var(--cheap-bg)"></span>Cheap (bottom third of the day)</span>
+      <span><span class="legend-swatch" style="background:var(--normal-bg)"></span>Normal (middle third)</span>
+      <span><span class="legend-swatch" style="background:var(--expensive-bg)"></span>Expensive (top third)</span>
+    </div>
+    <p style="font-size:12px;color:var(--text-secondary);margin:10px 0 0;">
+      Plus ~${monthlyFixedGross.toFixed(2)} EUR/month in fixed charges (grid connection, smart meter, renewables flat fee — gross, not shown above since they don't scale with usage).
+    </p>`;
+
+  document.getElementById("subtitle").textContent =
+    `Austria day-ahead price (SDAC) — updated ${new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: TIMEZONE }).format(new Date(data.generated_at_utc))}`;
+
+  app.innerHTML = `<div class="metrics">${metricsHtml}</div>${chartsHtml}${legendHtml}`;
+}
+
+main();
+</script>
+</body>
+</html>
