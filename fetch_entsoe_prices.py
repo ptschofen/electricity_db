@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
 Fetch day-ahead electricity prices for Austria from the ENTSO-E Transparency
-Platform and write them to prices.json for the dashboard front end.
+Platform, write them to prices.json for the dashboard front end, and
+optionally accumulate them into a local SQLite database (prices.db) for
+later comparison against real consumption/PV data.
 
 Setup (one-time):
   1. Register at https://transparency.entsoe.eu/
@@ -17,6 +19,7 @@ Usage:
   python fetch_entsoe_prices.py
   python fetch_entsoe_prices.py --out /path/to/prices.json
   python fetch_entsoe_prices.py --days 2   # today + tomorrow (default)
+  python fetch_entsoe_prices.py --store-db --db prices.db
 
 Run this once daily in the afternoon (after ~14:00 CEST), once the next
 day's auction has cleared, so you pick up tomorrow's prices too.
@@ -26,6 +29,7 @@ import argparse
 import ftplib
 import json
 import os
+import sqlite3
 import sys
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
@@ -155,6 +159,37 @@ def list_ftp_dir(remote_dir: str, host: str, user: str, password: str, use_tls: 
     ftp.quit()
 
 
+def store_in_sqlite(points, db_path: str, zone: str, fetched_at_utc: str):
+    """
+    Append/update price points in a local SQLite database.
+    Uses INSERT OR REPLACE on (bidding_zone, ts_utc), so re-running the
+    script is always safe: it fills in new intervals and refreshes any
+    that ENTSO-E revised, without creating duplicates.
+    """
+    conn = sqlite3.connect(db_path)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS prices (
+            bidding_zone TEXT NOT NULL,
+            ts_utc TEXT NOT NULL,
+            interval_minutes INTEGER NOT NULL,
+            price_eur_mwh REAL NOT NULL,
+            fetched_at_utc TEXT NOT NULL,
+            PRIMARY KEY (bidding_zone, ts_utc)
+        )
+    """)
+    conn.executemany(
+        """
+        INSERT OR REPLACE INTO prices (bidding_zone, ts_utc, interval_minutes, price_eur_mwh, fetched_at_utc)
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        [(zone, p["start_utc"], p["interval_minutes"], p["price_eur_mwh"], fetched_at_utc) for p in points],
+    )
+    conn.commit()
+    row_count = conn.execute("SELECT COUNT(*) FROM prices WHERE bidding_zone = ?", (zone,)).fetchone()[0]
+    conn.close()
+    return row_count
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--out", default="prices.json", help="Output JSON path (default: prices.json)")
@@ -164,6 +199,8 @@ def main():
     parser.add_argument("--ftp-remote-path", default="prices.json", help="Remote path/filename on the FTP server (default: prices.json in the login's home dir)")
     parser.add_argument("--no-tls", action="store_true", help="Use plain FTP instead of FTPS (only if your host doesn't support FTPS)")
     parser.add_argument("--list-path", default=None, help="Instead of fetching/uploading, just list this remote FTP directory and exit (for path discovery)")
+    parser.add_argument("--store-db", action="store_true", help="Also append/update the fetched points in a local SQLite database")
+    parser.add_argument("--db", default="prices.db", help="Path to the SQLite database (default: prices.db)")
     args = parser.parse_args()
 
     if args.list_path is not None:
@@ -202,6 +239,10 @@ def main():
 
     print(f"Wrote {len(points)} price points to {args.out}")
     print(f"Range: {points[0]['start_utc']} .. {points[-1]['start_utc']}")
+
+    if args.store_db:
+        total_rows = store_in_sqlite(points, args.db, zone="AT", fetched_at_utc=output["generated_at_utc"])
+        print(f"Stored in {args.db} — {total_rows} total AT price rows on record")
 
     if args.upload:
         host = os.environ.get("HOSTINGER_FTP_HOST")
