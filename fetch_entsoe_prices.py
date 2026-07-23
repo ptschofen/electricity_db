@@ -72,7 +72,9 @@ def parse_prices(xml_text: str):
         raise SystemExit(f"ENTSO-E rejected the request: {msg}")
 
     points = []
-    for ts in root.findall("ns:TimeSeries", NS):
+    seen_timestamps = set()
+    duplicate_count = 0
+    for ts_index, ts in enumerate(root.findall("ns:TimeSeries", NS)):
         period = ts.find("ns:Period", NS)
         interval_start_str = period.find("ns:timeInterval/ns:start", NS).text
         resolution = period.find("ns:resolution", NS).text  # e.g. PT60M or PT15M
@@ -88,13 +90,27 @@ def parse_prices(xml_text: str):
             position = int(point.find("ns:position", NS).text)
             price = float(point.find("ns:price.amount", NS).text)
             point_start = interval_start + timedelta(minutes=minutes * (position - 1))
+            start_str = point_start.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+            # ENTSO-E sometimes returns more than one TimeSeries block covering the
+            # same period (observed for AT, where in_Domain == out_Domain) — keep
+            # only the first one seen per timestamp so we don't get duplicate/
+            # conflicting prices for the same interval.
+            if start_str in seen_timestamps:
+                duplicate_count += 1
+                continue
+            seen_timestamps.add(start_str)
+
             points.append({
-                "start_utc": point_start.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "start_utc": start_str,
                 "interval_minutes": minutes,
                 "price_eur_mwh": price,
             })
 
     points.sort(key=lambda p: p["start_utc"])
+    if duplicate_count:
+        print(f"Note: ENTSO-E returned {duplicate_count} duplicate timestamp(s) across multiple "
+              f"TimeSeries blocks; kept the first value for each and discarded the rest.")
     return points
 
 
