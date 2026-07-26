@@ -32,9 +32,14 @@ jobs:
           python fetch_entsoe_prices.py --upload --ftp-remote-path "domains/petertschofen.eu/public_html/strom/prices.json" --store-db --db prices.db
 
       - name: Commit updated price history
+        if: always()  # commit whatever was fetched even if the FTP upload step failed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add prices.db
-          git diff --quiet --cached || git commit -m "Update price history $(date -u +%Y-%m-%d)"
-          git push
+          if [ -f prices.db ]; then
+            git add prices.db
+            git diff --quiet --cached || git commit -m "Update price history $(date -u +%Y-%m-%d)"
+            git push
+          else
+            echo "prices.db wasn't created this run (fetch likely failed before reaching the DB write) -- nothing to commit."
+          fi
