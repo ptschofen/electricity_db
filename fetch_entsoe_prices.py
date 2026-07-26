@@ -31,6 +31,7 @@ import json
 import os
 import sqlite3
 import sys
+import time
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
 
@@ -118,30 +119,50 @@ def parse_prices(xml_text: str):
     return points
 
 
-def upload_via_ftp(local_path: str, remote_path: str, host: str, user: str, password: str, use_tls: bool = True):
-    """Upload the JSON file to Hostinger via FTP (or FTPS if use_tls)."""
-    ftp_cls = ftplib.FTP_TLS if use_tls else ftplib.FTP
-    ftp = ftp_cls(timeout=30)
-    ftp.connect(host, 21)
-    ftp.login(user, password)
-    if use_tls:
-        ftp.prot_p()  # secure the data connection too
-    remote_dir = os.path.dirname(remote_path).replace("\\", "/")
-    if remote_dir:
+def upload_via_ftp(local_path: str, remote_path: str, host: str, user: str, password: str, use_tls: bool = True,
+                    max_attempts: int = 3, retry_delay_seconds: int = 15):
+    """
+    Upload the JSON file to Hostinger via FTP (or FTPS if use_tls).
+    Retries on connection-level failures (timeouts, transient DNS/network issues)
+    since these are usually one-off blips rather than real configuration problems.
+    Does NOT retry on login/path errors (550, auth failure) since those won't
+    resolve themselves by trying again.
+    """
+    last_error = None
+    for attempt in range(1, max_attempts + 1):
         try:
-            ftp.cwd(remote_dir)
-        except ftplib.error_perm as e:
-            print(f"Couldn't cd into '{remote_dir}'. FTP login starts at: {ftp.pwd()}")
-            print("Contents of that starting directory:")
-            try:
-                ftp.retrlines("LIST")
-            except Exception as list_err:
-                print(f"(couldn't list directory: {list_err})")
-            raise SystemExit(f"550 error: {e}")
-    filename = os.path.basename(remote_path)
-    with open(local_path, "rb") as f:
-        ftp.storbinary(f"STOR {filename}", f)
-    ftp.quit()
+            ftp_cls = ftplib.FTP_TLS if use_tls else ftplib.FTP
+            ftp = ftp_cls(timeout=30)
+            ftp.connect(host, 21)
+            ftp.login(user, password)
+            if use_tls:
+                ftp.prot_p()  # secure the data connection too
+            remote_dir = os.path.dirname(remote_path).replace("\\", "/")
+            if remote_dir:
+                try:
+                    ftp.cwd(remote_dir)
+                except ftplib.error_perm as e:
+                    print(f"Couldn't cd into '{remote_dir}'. FTP login starts at: {ftp.pwd()}")
+                    print("Contents of that starting directory:")
+                    try:
+                        ftp.retrlines("LIST")
+                    except Exception as list_err:
+                        print(f"(couldn't list directory: {list_err})")
+                    raise SystemExit(f"550 error: {e}")  # not a transient issue, don't retry
+            filename = os.path.basename(remote_path)
+            with open(local_path, "rb") as f:
+                ftp.storbinary(f"STOR {filename}", f)
+            ftp.quit()
+            return  # success
+        except SystemExit:
+            raise  # 550/path errors: fail immediately, retrying won't help
+        except (TimeoutError, OSError, ftplib.error_temp) as e:
+            last_error = e
+            print(f"FTP attempt {attempt}/{max_attempts} failed ({type(e).__name__}: {e}).")
+            if attempt < max_attempts:
+                print(f"Retrying in {retry_delay_seconds}s...")
+                time.sleep(retry_delay_seconds)
+    raise SystemExit(f"FTP upload failed after {max_attempts} attempts. Last error: {last_error}")
 
 
 def list_ftp_dir(remote_dir: str, host: str, user: str, password: str, use_tls: bool = True):
