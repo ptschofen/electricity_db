@@ -38,8 +38,25 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if [ -f prices.db ]; then
             git add prices.db
-            git diff --quiet --cached || git commit -m "Update price history $(date -u +%Y-%m-%d)"
-            git push
+            if git diff --quiet --cached; then
+              echo "No changes to prices.db -- nothing to commit."
+            else
+              git commit -m "Update price history $(date -u +%Y-%m-%d)"
+              # Retry the push a few times in case something else (e.g. a manual
+              # edit on GitHub) landed on main between checkout and push.
+              for attempt in 1 2 3; do
+                if git push; then
+                  echo "Pushed successfully."
+                  break
+                fi
+                echo "Push rejected (attempt $attempt/3) -- pulling latest main and retrying..."
+                git pull --rebase origin main
+                if [ "$attempt" = "3" ]; then
+                  echo "Push still failing after 3 attempts -- giving up for this run."
+                  exit 1
+                fi
+              done
+            fi
           else
             echo "prices.db wasn't created this run (fetch likely failed before reaching the DB write) -- nothing to commit."
           fi
