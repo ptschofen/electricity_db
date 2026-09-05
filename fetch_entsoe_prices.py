@@ -39,13 +39,20 @@ import urllib.request
 import urllib.parse
 import urllib.error
 
+try:
+    import paramiko  # only needed for --protocol sftp
+except ImportError:
+    paramiko = None
+
 API_URL = "https://web-api.tp.entsoe.eu/api"
 AUSTRIA_ZONE = "10YAT-APG------L"
 NS = {"ns": "urn:iec62325.351:tc57wg16:451-3:publicationdocument:7:3"}
 
 
-def fetch_raw_xml(token: str, start: datetime, end: datetime) -> str:
-    """Call the ENTSO-E RESTful API for day-ahead prices (A44)."""
+def fetch_raw_xml(token: str, start: datetime, end: datetime, max_attempts: int = 3, retry_delay_seconds: int = 20) -> str:
+    """Call the ENTSO-E RESTful API for day-ahead prices (A44). Retries on
+    transient network issues (timeouts, connection resets) since ENTSO-E's
+    API is occasionally slow/unresponsive rather than genuinely broken."""
     params = {
         "securityToken": token,
         "documentType": "A44",
@@ -56,14 +63,24 @@ def fetch_raw_xml(token: str, start: datetime, end: datetime) -> str:
         "periodEnd": end.strftime("%Y%m%d%H%M"),
     }
     url = f"{API_URL}?{urllib.parse.urlencode(params)}"
-    try:
-        with urllib.request.urlopen(url, timeout=30) as resp:
-            return resp.read().decode("utf-8")
-    except urllib.error.HTTPError as e:
-        body = e.read().decode("utf-8", errors="replace")
-        raise SystemExit(
-            f"ENTSO-E API returned HTTP {e.code}.\n{body[:1000]}"
-        )
+
+    last_error = None
+    for attempt in range(1, max_attempts + 1):
+        try:
+            with urllib.request.urlopen(url, timeout=30) as resp:
+                return resp.read().decode("utf-8")
+        except urllib.error.HTTPError as e:
+            # A real HTTP error response (bad token, malformed request, etc.)
+            # won't fix itself on retry -- fail immediately.
+            body = e.read().decode("utf-8", errors="replace")
+            raise SystemExit(f"ENTSO-E API returned HTTP {e.code}.\n{body[:1000]}")
+        except (TimeoutError, urllib.error.URLError, ConnectionError) as e:
+            last_error = e
+            print(f"ENTSO-E fetch attempt {attempt}/{max_attempts} failed ({type(e).__name__}: {e}).")
+            if attempt < max_attempts:
+                print(f"Retrying in {retry_delay_seconds}s...")
+                time.sleep(retry_delay_seconds)
+    raise SystemExit(f"ENTSO-E fetch failed after {max_attempts} attempts. Last error: {last_error}")
 
 
 def parse_prices(xml_text: str):
@@ -165,6 +182,56 @@ def upload_via_ftp(local_path: str, remote_path: str, host: str, user: str, pass
     raise SystemExit(f"FTP upload failed after {max_attempts} attempts. Last error: {last_error}")
 
 
+def upload_via_sftp(local_path: str, remote_path: str, host: str, user: str, password: str,
+                     port: int = 22, max_attempts: int = 3, retry_delay_seconds: int = 15):
+    """
+    Upload via SFTP (SSH-based), Hostinger's recommended alternative to plain FTP.
+    Uses the same host/username/password as FTP -- just a different port (22)
+    and protocol. Worth trying when plain FTP (port 21) gets consistently
+    blocked/timed out, since that's often a security tool (e.g. Imunify360)
+    blocklisting FTP-specific traffic from cloud/datacenter IP ranges -- SFTP
+    traffic isn't filtered by the same rules.
+    """
+    if paramiko is None:
+        raise SystemExit("paramiko isn't installed. Add 'pip install paramiko' before running with --protocol sftp.")
+
+    last_error = None
+    for attempt in range(1, max_attempts + 1):
+        transport = None
+        try:
+            transport = paramiko.Transport((host, port))
+            transport.banner_timeout = 30
+            transport.connect(username=user, password=password)
+            sftp = paramiko.SFTPClient.from_transport(transport)
+            try:
+                sftp.put(local_path, remote_path)
+            except FileNotFoundError as e:
+                remote_dir = os.path.dirname(remote_path)
+                print(f"Couldn't write to '{remote_path}' -- the directory may not exist or the path is wrong.")
+                try:
+                    print(f"Contents of '{remote_dir}':", sftp.listdir(remote_dir))
+                except Exception as list_err:
+                    print(f"(couldn't list directory: {list_err})")
+                raise SystemExit(f"SFTP path error: {e}")  # not transient, don't retry
+            sftp.close()
+            transport.close()
+            return  # success
+        except SystemExit:
+            raise
+        except (TimeoutError, OSError, paramiko.SSHException) as e:
+            last_error = e
+            print(f"SFTP attempt {attempt}/{max_attempts} failed ({type(e).__name__}: {e}).")
+            if transport is not None:
+                try:
+                    transport.close()
+                except Exception:
+                    pass
+            if attempt < max_attempts:
+                print(f"Retrying in {retry_delay_seconds}s...")
+                time.sleep(retry_delay_seconds)
+    raise SystemExit(f"SFTP upload failed after {max_attempts} attempts. Last error: {last_error}")
+
+
 def list_ftp_dir(remote_dir: str, host: str, user: str, password: str, use_tls: bool = True):
     """Connect and print the contents of remote_dir — pure discovery helper, no file transfer."""
     ftp_cls = ftplib.FTP_TLS if use_tls else ftplib.FTP
@@ -216,9 +283,11 @@ def main():
     parser.add_argument("--out", default="prices.json", help="Output JSON path (default: prices.json)")
     parser.add_argument("--days", type=int, default=2, help="Number of days from today to fetch (default: 2 = today + tomorrow)")
     parser.add_argument("--token", default=None, help="ENTSO-E security token (else reads ENTSOE_API_TOKEN env var)")
-    parser.add_argument("--upload", action="store_true", help="Upload the result to Hostinger via FTP afterward")
-    parser.add_argument("--ftp-remote-path", default="prices.json", help="Remote path/filename on the FTP server (default: prices.json in the login's home dir)")
-    parser.add_argument("--no-tls", action="store_true", help="Use plain FTP instead of FTPS (only if your host doesn't support FTPS)")
+    parser.add_argument("--upload", action="store_true", help="Upload the result to Hostinger afterward")
+    parser.add_argument("--protocol", choices=["sftp", "ftp"], default="sftp",
+                         help="Upload protocol (default: sftp -- Hostinger's recommended, more firewall-friendly option; use 'ftp' only if SFTP isn't available on your plan)")
+    parser.add_argument("--ftp-remote-path", default="prices.json", help="Remote path/filename on the server (default: prices.json in the login's home dir)")
+    parser.add_argument("--no-tls", action="store_true", help="(FTP only) Use plain FTP instead of FTPS")
     parser.add_argument("--list-path", default=None, help="Instead of fetching/uploading, just list this remote FTP directory and exit (for path discovery)")
     parser.add_argument("--store-db", action="store_true", help="Also append/update the fetched points in a local SQLite database")
     parser.add_argument("--db", default="prices.db", help="Path to the SQLite database (default: prices.db)")
@@ -272,8 +341,11 @@ def main():
         missing = [n for n, v in [("HOSTINGER_FTP_HOST", host), ("HOSTINGER_FTP_USER", user), ("HOSTINGER_FTP_PASSWORD", password)] if not v]
         if missing:
             sys.exit(f"--upload requires these env vars to be set: {', '.join(missing)}")
-        upload_via_ftp(args.out, args.ftp_remote_path, host, user, password, use_tls=not args.no_tls)
-        print(f"Uploaded {args.out} -> {args.ftp_remote_path} on {host}")
+        if args.protocol == "sftp":
+            upload_via_sftp(args.out, args.ftp_remote_path, host, user, password)
+        else:
+            upload_via_ftp(args.out, args.ftp_remote_path, host, user, password, use_tls=not args.no_tls)
+        print(f"Uploaded {args.out} -> {args.ftp_remote_path} on {host} via {args.protocol.upper()}")
 
 
 if __name__ == "__main__":
