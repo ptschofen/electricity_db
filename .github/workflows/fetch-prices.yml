@@ -22,6 +22,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install dependencies
+        run: pip install paramiko
+
       - name: Fetch prices, upload to Hostinger, and update price history
         env:
           ENTSOE_API_TOKEN: ${{ secrets.ENTSOE_API_TOKEN }}
@@ -29,7 +32,7 @@ jobs:
           HOSTINGER_FTP_USER: ${{ secrets.HOSTINGER_FTP_USER }}
           HOSTINGER_FTP_PASSWORD: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
         run: |
-          python fetch_entsoe_prices.py --upload --ftp-remote-path "domains/petertschofen.eu/public_html/strom/prices.json" --store-db --db prices.db
+          python fetch_entsoe_prices.py --upload --protocol sftp --ftp-remote-path "domains/petertschofen.eu/public_html/strom/prices.json" --store-db --db prices.db
 
       - name: Commit updated price history
         if: always()  # commit whatever was fetched even if the FTP upload step failed
