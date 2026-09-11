@@ -1,0 +1,15 @@
+[Unit]
+Description=MQTT smart meter reading logger
+After=network-online.target mosquitto.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/pi/meter_logger.py
+WorkingDirectory=/home/pi
+Restart=always
+RestartSec=10
+User=pi
+
+[Install]
+WantedBy=multi-user.target
