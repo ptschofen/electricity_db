@@ -1,7 +1,7 @@
 {
   "zone": "AT",
   "unit": "EUR_per_MWh",
-  "generated_at_utc": "2026-09-19T16:20:50Z",
+  "generated_at_utc": "2026-09-19T16:37:33Z",
   "prices": [
     {
       "start_utc": "2026-09-17T22:00:00Z",
