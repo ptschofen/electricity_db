@@ -106,7 +106,10 @@
 </div>
 
 <script>
-const JSON_URL = "prices.json";
+// Fetched directly from GitHub Pages -- sidesteps Hostinger's upload
+// reliability issues entirely. GitHub Actions commits prices.json to the
+// repo daily; this just reads the latest committed version.
+const JSON_URL = "https://ptschofen.github.io/electricity_db/prices.json";
 const TIMEZONE = "Europe/Vienna";
 const CHEAP_WINDOW_HOURS = 3;
 
