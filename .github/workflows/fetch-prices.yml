@@ -1,4 +1,4 @@
-name: Fetch ENTSO-E prices and deploy
+name: Fetch ENTSO-E prices
 
 on:
   schedule:
@@ -8,10 +8,10 @@ on:
   workflow_dispatch: {}  # lets you trigger it manually from the Actions tab, for testing
 
 permissions:
-  contents: write  # needed to commit prices.db back to the repo
+  contents: write  # needed to commit prices.json/prices.db back to the repo
 
 jobs:
-  fetch-and-upload:
+  fetch:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
@@ -22,31 +22,23 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install dependencies
-        run: pip install paramiko
-
-      - name: Fetch prices, upload to Hostinger, and update price history
+      - name: Fetch prices and update price history
         env:
           ENTSOE_API_TOKEN: ${{ secrets.ENTSOE_API_TOKEN }}
-          HOSTINGER_FTP_HOST: ${{ secrets.HOSTINGER_FTP_HOST }}
-          HOSTINGER_FTP_USER: ${{ secrets.HOSTINGER_FTP_USER }}
-          HOSTINGER_FTP_PASSWORD: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
         run: |
-          python fetch_entsoe_prices.py --upload --protocol sftp --ftp-remote-path "domains/petertschofen.eu/public_html/strom/prices.json" --store-db --db prices.db
+          python fetch_entsoe_prices.py --store-db --db prices.db
 
-      - name: Commit updated price history
-        if: always()  # commit whatever was fetched even if the FTP upload step failed
+      - name: Commit updated prices.json and prices.db
+        if: always()  # commit whatever was fetched even if something above failed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if [ -f prices.db ]; then
-            git add prices.db
+          if [ -f prices.json ] || [ -f prices.db ]; then
+            git add prices.json prices.db 2>/dev/null || true
             if git diff --quiet --cached; then
-              echo "No changes to prices.db -- nothing to commit."
+              echo "No changes -- nothing to commit."
             else
-              git commit -m "Update price history $(date -u +%Y-%m-%d)"
-              # Retry the push a few times in case something else (e.g. a manual
-              # edit on GitHub) landed on main between checkout and push.
+              git commit -m "Update prices $(date -u +%Y-%m-%d)"
               for attempt in 1 2 3; do
                 if git push; then
                   echo "Pushed successfully."
@@ -61,5 +53,5 @@ jobs:
               done
             fi
           else
-            echo "prices.db wasn't created this run (fetch likely failed before reaching the DB write) -- nothing to commit."
+            echo "Neither prices.json nor prices.db exist this run -- nothing to commit."
           fi
