@@ -1,488 +1,8 @@
 {
   "zone": "AT",
   "unit": "EUR_per_MWh",
-  "generated_at_utc": "2026-10-14T18:04:38Z",
+  "generated_at_utc": "2026-10-15T17:49:18Z",
   "prices": [
-    {
-      "start_utc": "2026-10-12T22:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 204.27
-    },
-    {
-      "start_utc": "2026-10-12T22:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 200.0
-    },
-    {
-      "start_utc": "2026-10-12T22:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 195.0
-    },
-    {
-      "start_utc": "2026-10-12T22:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 188.16
-    },
-    {
-      "start_utc": "2026-10-12T23:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 199.31
-    },
-    {
-      "start_utc": "2026-10-12T23:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 194.59
-    },
-    {
-      "start_utc": "2026-10-12T23:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 184.41
-    },
-    {
-      "start_utc": "2026-10-12T23:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 180.37
-    },
-    {
-      "start_utc": "2026-10-13T00:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 192.44
-    },
-    {
-      "start_utc": "2026-10-13T00:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 190.22
-    },
-    {
-      "start_utc": "2026-10-13T00:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 190.01
-    },
-    {
-      "start_utc": "2026-10-13T00:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 187.89
-    },
-    {
-      "start_utc": "2026-10-13T01:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 185.47
-    },
-    {
-      "start_utc": "2026-10-13T01:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 186.41
-    },
-    {
-      "start_utc": "2026-10-13T01:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 185.45
-    },
-    {
-      "start_utc": "2026-10-13T01:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 188.88
-    },
-    {
-      "start_utc": "2026-10-13T02:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 185.0
-    },
-    {
-      "start_utc": "2026-10-13T02:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 187.51
-    },
-    {
-      "start_utc": "2026-10-13T02:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 189.91
-    },
-    {
-      "start_utc": "2026-10-13T02:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 196.78
-    },
-    {
-      "start_utc": "2026-10-13T03:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 184.5
-    },
-    {
-      "start_utc": "2026-10-13T03:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 194.84
-    },
-    {
-      "start_utc": "2026-10-13T03:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 213.48
-    },
-    {
-      "start_utc": "2026-10-13T03:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 223.57
-    },
-    {
-      "start_utc": "2026-10-13T04:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 220.0
-    },
-    {
-      "start_utc": "2026-10-13T04:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 241.5
-    },
-    {
-      "start_utc": "2026-10-13T04:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 257.51
-    },
-    {
-      "start_utc": "2026-10-13T04:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 269.61
-    },
-    {
-      "start_utc": "2026-10-13T05:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 265.41
-    },
-    {
-      "start_utc": "2026-10-13T05:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 273.04
-    },
-    {
-      "start_utc": "2026-10-13T05:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 272.32
-    },
-    {
-      "start_utc": "2026-10-13T05:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 266.2
-    },
-    {
-      "start_utc": "2026-10-13T06:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 287.81
-    },
-    {
-      "start_utc": "2026-10-13T06:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 269.71
-    },
-    {
-      "start_utc": "2026-10-13T06:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 250.24
-    },
-    {
-      "start_utc": "2026-10-13T06:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 236.62
-    },
-    {
-      "start_utc": "2026-10-13T07:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 257.51
-    },
-    {
-      "start_utc": "2026-10-13T07:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 238.96
-    },
-    {
-      "start_utc": "2026-10-13T07:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 221.06
-    },
-    {
-      "start_utc": "2026-10-13T07:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 211.1
-    },
-    {
-      "start_utc": "2026-10-13T08:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 232.78
-    },
-    {
-      "start_utc": "2026-10-13T08:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 214.63
-    },
-    {
-      "start_utc": "2026-10-13T08:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 199.74
-    },
-    {
-      "start_utc": "2026-10-13T08:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 177.93
-    },
-    {
-      "start_utc": "2026-10-13T09:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 206.14
-    },
-    {
-      "start_utc": "2026-10-13T09:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 180.0
-    },
-    {
-      "start_utc": "2026-10-13T09:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 180.8
-    },
-    {
-      "start_utc": "2026-10-13T09:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 158.36
-    },
-    {
-      "start_utc": "2026-10-13T10:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 179.99
-    },
-    {
-      "start_utc": "2026-10-13T10:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 174.21
-    },
-    {
-      "start_utc": "2026-10-13T10:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 171.51
-    },
-    {
-      "start_utc": "2026-10-13T10:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 170.28
-    },
-    {
-      "start_utc": "2026-10-13T11:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 173.02
-    },
-    {
-      "start_utc": "2026-10-13T11:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 174.9
-    },
-    {
-      "start_utc": "2026-10-13T11:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 171.36
-    },
-    {
-      "start_utc": "2026-10-13T11:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 176.8
-    },
-    {
-      "start_utc": "2026-10-13T12:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 171.88
-    },
-    {
-      "start_utc": "2026-10-13T12:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 180.04
-    },
-    {
-      "start_utc": "2026-10-13T12:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 190.91
-    },
-    {
-      "start_utc": "2026-10-13T12:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 193.47
-    },
-    {
-      "start_utc": "2026-10-13T13:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 173.44
-    },
-    {
-      "start_utc": "2026-10-13T13:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 183.62
-    },
-    {
-      "start_utc": "2026-10-13T13:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 194.99
-    },
-    {
-      "start_utc": "2026-10-13T13:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 230.0
-    },
-    {
-      "start_utc": "2026-10-13T14:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 200.13
-    },
-    {
-      "start_utc": "2026-10-13T14:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 228.02
-    },
-    {
-      "start_utc": "2026-10-13T14:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 257.51
-    },
-    {
-      "start_utc": "2026-10-13T14:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 272.49
-    },
-    {
-      "start_utc": "2026-10-13T15:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 222.7
-    },
-    {
-      "start_utc": "2026-10-13T15:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 239.82
-    },
-    {
-      "start_utc": "2026-10-13T15:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 258.52
-    },
-    {
-      "start_utc": "2026-10-13T15:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 283.71
-    },
-    {
-      "start_utc": "2026-10-13T16:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 253.46
-    },
-    {
-      "start_utc": "2026-10-13T16:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 258.52
-    },
-    {
-      "start_utc": "2026-10-13T16:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 260.8
-    },
-    {
-      "start_utc": "2026-10-13T16:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 266.97
-    },
-    {
-      "start_utc": "2026-10-13T17:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 261.34
-    },
-    {
-      "start_utc": "2026-10-13T17:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 260.41
-    },
-    {
-      "start_utc": "2026-10-13T17:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 260.01
-    },
-    {
-      "start_utc": "2026-10-13T17:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 257.98
-    },
-    {
-      "start_utc": "2026-10-13T18:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 258.52
-    },
-    {
-      "start_utc": "2026-10-13T18:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 245.96
-    },
-    {
-      "start_utc": "2026-10-13T18:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 235.94
-    },
-    {
-      "start_utc": "2026-10-13T18:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 224.39
-    },
-    {
-      "start_utc": "2026-10-13T19:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 235.86
-    },
-    {
-      "start_utc": "2026-10-13T19:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 228.42
-    },
-    {
-      "start_utc": "2026-10-13T19:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 218.49
-    },
-    {
-      "start_utc": "2026-10-13T19:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 208.17
-    },
-    {
-      "start_utc": "2026-10-13T20:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 223.85
-    },
-    {
-      "start_utc": "2026-10-13T20:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 213.69
-    },
-    {
-      "start_utc": "2026-10-13T20:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 203.54
-    },
-    {
-      "start_utc": "2026-10-13T20:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 197.15
-    },
-    {
-      "start_utc": "2026-10-13T21:00:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 219.88
-    },
-    {
-      "start_utc": "2026-10-13T21:15:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 201.76
-    },
-    {
-      "start_utc": "2026-10-13T21:30:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 186.2
-    },
-    {
-      "start_utc": "2026-10-13T21:45:00Z",
-      "interval_minutes": 15,
-      "price_eur_mwh": 170.31
-    },
     {
       "start_utc": "2026-10-13T22:00:00Z",
       "interval_minutes": 15,
@@ -1442,6 +962,486 @@
       "start_utc": "2026-10-15T21:45:00Z",
       "interval_minutes": 15,
       "price_eur_mwh": 180.16
+    },
+    {
+      "start_utc": "2026-10-15T22:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 222.18
+    },
+    {
+      "start_utc": "2026-10-15T22:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 216.43
+    },
+    {
+      "start_utc": "2026-10-15T22:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 214.31
+    },
+    {
+      "start_utc": "2026-10-15T22:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 208.56
+    },
+    {
+      "start_utc": "2026-10-15T23:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 217.0
+    },
+    {
+      "start_utc": "2026-10-15T23:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 209.92
+    },
+    {
+      "start_utc": "2026-10-15T23:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 204.27
+    },
+    {
+      "start_utc": "2026-10-15T23:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 202.73
+    },
+    {
+      "start_utc": "2026-10-16T00:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 204.07
+    },
+    {
+      "start_utc": "2026-10-16T00:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 202.54
+    },
+    {
+      "start_utc": "2026-10-16T00:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 200.73
+    },
+    {
+      "start_utc": "2026-10-16T00:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 193.71
+    },
+    {
+      "start_utc": "2026-10-16T01:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 198.43
+    },
+    {
+      "start_utc": "2026-10-16T01:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 198.76
+    },
+    {
+      "start_utc": "2026-10-16T01:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 200.79
+    },
+    {
+      "start_utc": "2026-10-16T01:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 201.59
+    },
+    {
+      "start_utc": "2026-10-16T02:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 191.52
+    },
+    {
+      "start_utc": "2026-10-16T02:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 193.82
+    },
+    {
+      "start_utc": "2026-10-16T02:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 203.44
+    },
+    {
+      "start_utc": "2026-10-16T02:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 210.0
+    },
+    {
+      "start_utc": "2026-10-16T03:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 194.18
+    },
+    {
+      "start_utc": "2026-10-16T03:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 204.99
+    },
+    {
+      "start_utc": "2026-10-16T03:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 221.15
+    },
+    {
+      "start_utc": "2026-10-16T03:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 234.26
+    },
+    {
+      "start_utc": "2026-10-16T04:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 236.72
+    },
+    {
+      "start_utc": "2026-10-16T04:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 270.72
+    },
+    {
+      "start_utc": "2026-10-16T04:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 283.51
+    },
+    {
+      "start_utc": "2026-10-16T04:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 294.99
+    },
+    {
+      "start_utc": "2026-10-16T05:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 270.54
+    },
+    {
+      "start_utc": "2026-10-16T05:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 288.92
+    },
+    {
+      "start_utc": "2026-10-16T05:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 298.66
+    },
+    {
+      "start_utc": "2026-10-16T05:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 290.53
+    },
+    {
+      "start_utc": "2026-10-16T06:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 300.0
+    },
+    {
+      "start_utc": "2026-10-16T06:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 294.52
+    },
+    {
+      "start_utc": "2026-10-16T06:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 270.01
+    },
+    {
+      "start_utc": "2026-10-16T06:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 244.47
+    },
+    {
+      "start_utc": "2026-10-16T07:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 290.0
+    },
+    {
+      "start_utc": "2026-10-16T07:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 265.77
+    },
+    {
+      "start_utc": "2026-10-16T07:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 241.77
+    },
+    {
+      "start_utc": "2026-10-16T07:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 218.11
+    },
+    {
+      "start_utc": "2026-10-16T08:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 267.34
+    },
+    {
+      "start_utc": "2026-10-16T08:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 235.0
+    },
+    {
+      "start_utc": "2026-10-16T08:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 197.97
+    },
+    {
+      "start_utc": "2026-10-16T08:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 174.44
+    },
+    {
+      "start_utc": "2026-10-16T09:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 230.77
+    },
+    {
+      "start_utc": "2026-10-16T09:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 210.99
+    },
+    {
+      "start_utc": "2026-10-16T09:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 174.95
+    },
+    {
+      "start_utc": "2026-10-16T09:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 160.89
+    },
+    {
+      "start_utc": "2026-10-16T10:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 212.9
+    },
+    {
+      "start_utc": "2026-10-16T10:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 181.36
+    },
+    {
+      "start_utc": "2026-10-16T10:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 161.87
+    },
+    {
+      "start_utc": "2026-10-16T10:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 151.87
+    },
+    {
+      "start_utc": "2026-10-16T11:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 188.11
+    },
+    {
+      "start_utc": "2026-10-16T11:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 164.47
+    },
+    {
+      "start_utc": "2026-10-16T11:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 160.52
+    },
+    {
+      "start_utc": "2026-10-16T11:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 170.11
+    },
+    {
+      "start_utc": "2026-10-16T12:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 153.81
+    },
+    {
+      "start_utc": "2026-10-16T12:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 167.75
+    },
+    {
+      "start_utc": "2026-10-16T12:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 187.63
+    },
+    {
+      "start_utc": "2026-10-16T12:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 199.99
+    },
+    {
+      "start_utc": "2026-10-16T13:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 160.21
+    },
+    {
+      "start_utc": "2026-10-16T13:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 177.49
+    },
+    {
+      "start_utc": "2026-10-16T13:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 202.03
+    },
+    {
+      "start_utc": "2026-10-16T13:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 245.05
+    },
+    {
+      "start_utc": "2026-10-16T14:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 186.96
+    },
+    {
+      "start_utc": "2026-10-16T14:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 222.38
+    },
+    {
+      "start_utc": "2026-10-16T14:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 265.0
+    },
+    {
+      "start_utc": "2026-10-16T14:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 288.98
+    },
+    {
+      "start_utc": "2026-10-16T15:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 235.71
+    },
+    {
+      "start_utc": "2026-10-16T15:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 262.52
+    },
+    {
+      "start_utc": "2026-10-16T15:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 277.5
+    },
+    {
+      "start_utc": "2026-10-16T15:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 295.4
+    },
+    {
+      "start_utc": "2026-10-16T16:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 262.96
+    },
+    {
+      "start_utc": "2026-10-16T16:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 269.53
+    },
+    {
+      "start_utc": "2026-10-16T16:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 274.33
+    },
+    {
+      "start_utc": "2026-10-16T16:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 279.49
+    },
+    {
+      "start_utc": "2026-10-16T17:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 272.85
+    },
+    {
+      "start_utc": "2026-10-16T17:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 274.23
+    },
+    {
+      "start_utc": "2026-10-16T17:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 270.01
+    },
+    {
+      "start_utc": "2026-10-16T17:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 267.55
+    },
+    {
+      "start_utc": "2026-10-16T18:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 276.24
+    },
+    {
+      "start_utc": "2026-10-16T18:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 269.53
+    },
+    {
+      "start_utc": "2026-10-16T18:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 257.72
+    },
+    {
+      "start_utc": "2026-10-16T18:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 235.61
+    },
+    {
+      "start_utc": "2026-10-16T19:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 256.9
+    },
+    {
+      "start_utc": "2026-10-16T19:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 247.63
+    },
+    {
+      "start_utc": "2026-10-16T19:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 236.54
+    },
+    {
+      "start_utc": "2026-10-16T19:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 226.56
+    },
+    {
+      "start_utc": "2026-10-16T20:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 244.06
+    },
+    {
+      "start_utc": "2026-10-16T20:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 234.63
+    },
+    {
+      "start_utc": "2026-10-16T20:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 234.17
+    },
+    {
+      "start_utc": "2026-10-16T20:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 217.26
+    },
+    {
+      "start_utc": "2026-10-16T21:00:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 230.0
+    },
+    {
+      "start_utc": "2026-10-16T21:15:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 226.21
+    },
+    {
+      "start_utc": "2026-10-16T21:30:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 220.77
+    },
+    {
+      "start_utc": "2026-10-16T21:45:00Z",
+      "interval_minutes": 15,
+      "price_eur_mwh": 198.73
     }
   ]
 }
